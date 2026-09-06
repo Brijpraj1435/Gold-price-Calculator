@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gold Calculator</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f7f4ed;
+    color: #222;
+  }
+  .container {
+    max-width: 520px;
+    margin: 25px auto;
+    padding: 16px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.10);
+  }
+  h1 {
+    text-align: center;
+    margin: 0 0 6px;
+    font-size: 28px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 22px;
+  }
+  label {
+    display: block;
+    font-weight: 600;
+    margin: 14px 0 7px;
+  }
+  input, select {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    outline: none;
+  }
+  input:focus, select:focus { border-color: #b8860b; }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    border: 0;
+    border-radius: 10px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #b8860b;
+    color: white;
+  }
+  button:hover { opacity: .9; }
+  .reset {
+    background: #555;
+    margin-top: 10px;
+  }
+  .result {
+    margin-top: 22px;
+    background: #faf7ef;
+    border-radius: 14px;
+    padding: 17px;
+  }
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 9px 0;
+    border-bottom: 1px solid #e5dfd2;
+  }
+  .result-row:last-child { border-bottom: 0; }
+  .total {
+    font-size: 22px;
+    font-weight: bold;
+    color: #9a6d00;
+    padding-top: 14px;
+  }
+  .hint {
+    font-size: 13px;
+    color: #777;
+    margin-top: 6px;
+  }
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="card">
+    <h1>💰 Gold Calculator</h1>
+    <div class="subtitle">Manual 10 Gram Gold Rate Calculator</div>
+
+    <label for="rate">Manual Gold Rate (₹ per 10 grams)</label>
+    <input id="rate" type="number" min="0" step="0.01" placeholder="Example: 125000">
+
+    <label for="weight">Gold Weight (grams)</label>
+    <input id="weight" type="number" min="0" step="0.001" placeholder="Example: 5.250">
+
+    <div class="row">
+      <div>
+        <label for="purity">Purity</label>
+        <select id="purity">
+          <option value="1">24K (99.9%)</option>
+          <option value="0.9167" selected>22K (91.67%)</option>
+          <option value="0.875">21K (87.5%)</option>
+          <option value="0.75">18K (75%)</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="making">Making Charges (%)</label>
+        <input id="making" type="number" min="0" step="0.01" value="0" placeholder="Example: 10">
+      </div>
+    </div>
+
+    <label for="gst">GST (%)</label>
+    <input id="gst" type="number" min="0" step="0.01" value="3" placeholder="Example: 3">
+
+    <button onclick="calculate()">Calculate Amount</button>
+    <button class="reset" onclick="resetCalculator()">Reset</button>
+
+    <div class="result">
+      <div class="result-row">
+        <span>Rate per gram</span>
+        <strong id="perGram">₹0.00</strong>
+      </div>
+      <div class="result-row">
+        <span>Pure gold rate</span>
+        <strong id="purityRate">₹0.00</strong>
+      </div>
+      <div class="result-row">
+        <span>Gold amount</span>
+        <strong id="goldAmount">₹0.00</strong>
+      </div>
+      <div class="result-row">
+        <span>Making charges</span>
+        <strong id="makingAmount">₹0.00</strong>
+      </div>
+      <div class="result-row">
+        <span>GST</span>
+        <strong id="gstAmount">₹0.00</strong>
+      </div>
+      <div class="result-row total">
+        <span>Final Amount</span>
+        <strong id="totalAmount">₹0.00</strong>
+      </div>
+      <div class="hint">Calculation is based on the manually entered 10 gram rate.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function money(value) {
+  return "₹" + Number(value).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function calculate() {
+  const rate10g = parseFloat(document.getElementById("rate").value) || 0;
+  const weight = parseFloat(document.getElementById("weight").value) || 0;
+  const purity = parseFloat(document.getElementById("purity").value) || 1;
+  const makingPercent = parseFloat(document.getElementById("making").value) || 0;
+  const gstPercent = parseFloat(document.getElementById("gst").value) || 0;
+
+  const ratePerGram = rate10g / 10;
+  const purityRate = ratePerGram * purity;
+  const goldAmount = purityRate * weight;
+  const makingAmount = goldAmount * makingPercent / 100;
+  const subtotal = goldAmount + makingAmount;
+  const gstAmount = subtotal * gstPercent / 100;
+  const total = subtotal + gstAmount;
+
+  document.getElementById("perGram").textContent = money(ratePerGram);
+  document.getElementById("purityRate").textContent = money(purityRate);
+  document.getElementById("goldAmount").textContent = money(goldAmount);
+  document.getElementById("makingAmount").textContent = money(makingAmount);
+  document.getElementById("gstAmount").textContent = money(gstAmount);
+  document.getElementById("totalAmount").textContent = money(total);
+}
+
+function resetCalculator() {
+  document.getElementById("rate").value = "";
+  document.getElementById("weight").value = "";
+  document.getElementById("purity").value = "0.9167";
+  document.getElementById("making").value = "0";
+  document.getElementById("gst").value = "3";
+
+  ["perGram", "purityRate", "goldAmount", "makingAmount", "gstAmount", "totalAmount"]
+    .forEach(id => document.getElementById(id).textContent = "₹0.00");
+}
+</script>
+</body>
+</html>
